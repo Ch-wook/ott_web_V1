@@ -35,25 +35,29 @@ const MoviesPage = ({ searchTerm = '', isDarkMode }) => {
       if (!response.ok) throw new Error('서버 연결 실패');
       const historyData = await response.json();
 
+      // N+1 문제 해결: 상세 정보는 여기서 fetch하지 않고 기본 데이터만 세팅
+      // PosterUrl 등은 TMDB ID가 없으므로 여전히 제목 기반 검색이 필요하지만,
+      // 한꺼번에 Promise.all로 처리하여 병렬성을 높임 (나중에 지연 로딩 도입 가능)
       const enrichedMovies = await Promise.all(
         historyData.map(async (movie) => {
           try {
+            // 캐시 확인 로직 추가 가능 (SearchPage와 공유하는 전역 캐시 권장)
             const tmdbResp = await fetch(
               `${TMDB_BASE_URL}/search/multi?query=${encodeURIComponent(movie.title)}&include_adult=false&language=ko-KR&page=1`,
               { headers: { Authorization: `Bearer ${TMDB_ACCESS_TOKEN}` } }
             );
             const tmdbData = await tmdbResp.json();
             const detail = tmdbData.results?.find(r => r.media_type === 'movie' || r.media_type === 'tv') || tmdbData.results?.[0] || {};
-            const providerStatuses = await fetchProviderAvailability(movie.title);
+            
             return {
               ...movie,
-              posterUrl: detail.poster_path ? `https://image.tmdb.org/t/p/w500${detail.poster_path}` : null,
+              posterUrl: detail.poster_path ? `https://image.tmdb.org/t/p/w342${detail.poster_path}` : null,
               overview: detail.overview || '상세 정보가 없습니다.',
               rating: detail.vote_average || 0,
               mediaType: detail?.media_type || (movie.subTitle ? 'tv' : 'movie'),
-              providerStatuses
+              providerStatuses: null // 지연 로딩을 위해 초기값 null
             };
-          } catch { return { ...movie, mediaType: movie.subTitle ? 'tv' : 'movie' }; }
+          } catch { return { ...movie, mediaType: movie.subTitle ? 'tv' : 'movie', providerStatuses: null }; }
         })
       );
 

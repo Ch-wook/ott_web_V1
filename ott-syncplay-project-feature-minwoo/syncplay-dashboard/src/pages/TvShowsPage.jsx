@@ -44,16 +44,16 @@ const TvShowsPage = ({ searchTerm = '', isDarkMode }) => {
             );
             const tmdbData = await tmdbResp.json();
             const detail = tmdbData.results?.find(r => r.media_type === 'movie' || r.media_type === 'tv') || tmdbData.results?.[0] || {};
-            const providerStatuses = await fetchProviderAvailability(show.title);
+            
             return {
               ...show,
-              posterUrl: detail.poster_path ? `https://image.tmdb.org/t/p/w500${detail.poster_path}` : null,
+              posterUrl: detail.poster_path ? `https://image.tmdb.org/t/p/w342${detail.poster_path}` : null,
               overview: detail.overview || '상세 정보가 없습니다.',
               rating: detail.vote_average || 0,
               mediaType: detail?.media_type || (show.subTitle ? 'tv' : 'movie'),
-              providerStatuses
+              providerStatuses: null // 지연 로딩을 위해 초기값 null
             };
-          } catch { return { ...show, mediaType: show.subTitle ? 'tv' : 'movie' }; }
+          } catch { return { ...show, mediaType: show.subTitle ? 'tv' : 'movie', providerStatuses: null }; }
         })
       );
 

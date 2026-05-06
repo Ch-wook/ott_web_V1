@@ -426,7 +426,7 @@ const SearchPage = ({ isDarkMode }) => {
         )}
         <div className="w-full aspect-[2/3] bg-black relative overflow-hidden">
           {item.posterUrl
-            ? <img src={item.posterUrl} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            ? <img src={item.posterUrl} alt={item.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             : <div className={`w-full h-full flex items-center justify-center text-[10px] ${textMuted} uppercase font-bold`}>이미지 없음</div>
           }
           <div className="absolute top-3 right-3">

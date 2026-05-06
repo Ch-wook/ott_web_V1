@@ -78,6 +78,7 @@ const MediaCard = ({ id, title, rawTitle, progress, posterUrl, overview, rating,
           <img
             src={finalPoster}
             alt={displayTitle}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
 
