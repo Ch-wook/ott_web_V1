@@ -11,6 +11,16 @@ import MyPage from './pages/MyPage';
 import SettingsPage from './pages/Settings';
 import SearchPage from './pages/SearchPage';
 
+// 로그인 여부를 확인하여 보호된 경로 접근을 제어하는 컴포넌트
+const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem('user');
+  if (!user) {
+    // 로그인이 안 되어 있다면 로그인 페이지로 리다이렉트
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -123,12 +133,15 @@ const App = () => {
             <Route path="/" element={<LoginPage isDarkMode={isDarkMode} />} />
             <Route path="/login" element={<LoginPage isDarkMode={isDarkMode} />} />
             <Route path="/signup" element={<SignupPage isDarkMode={isDarkMode} />} />
-            <Route path="/home" element={<HomePage isDarkMode={isDarkMode} />} />
-            <Route path="/movies" element={<MoviesPage searchTerm={searchTerm} isDarkMode={isDarkMode} />} />
-            <Route path="/tv" element={<TvShowsPage searchTerm={searchTerm} isDarkMode={isDarkMode} />} />
-            <Route path="/mypage" element={<MyPage isDarkMode={isDarkMode} />} />
-            <Route path="/settings" element={<SettingsPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
-            <Route path="/search" element={<SearchPage isDarkMode={isDarkMode} />} />
+            
+            {/* 보호된 경로들 */}
+            <Route path="/home" element={<ProtectedRoute><HomePage isDarkMode={isDarkMode} /></ProtectedRoute>} />
+            <Route path="/movies" element={<ProtectedRoute><MoviesPage searchTerm={searchTerm} isDarkMode={isDarkMode} /></ProtectedRoute>} />
+            <Route path="/tv" element={<ProtectedRoute><TvShowsPage searchTerm={searchTerm} isDarkMode={isDarkMode} /></ProtectedRoute>} />
+            <Route path="/mypage" element={<ProtectedRoute><MyPage isDarkMode={isDarkMode} /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage isDarkMode={isDarkMode} toggleTheme={toggleTheme} /></ProtectedRoute>} />
+            <Route path="/search" element={<ProtectedRoute><SearchPage isDarkMode={isDarkMode} /></ProtectedRoute>} />
+            
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
